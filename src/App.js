@@ -1,25 +1,48 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+
+const API_URL = 'https://randomuser.me/api';
+const USER_LIMIT = 10;
+
+const fetchData = () => {
+  return fetch(API_URL + '/?results=' + USER_LIMIT)
+    .then((resp) => resp.json())
+  // .then((resp) => console.log(resp))
+}
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isLoading: true,
+      userList: []
+    }
+  }
+
+  componentDidMount() {
+    fetchData()
+      .then((resp) => this.setState({ userList: resp.results, isLoading: false }));
+  }
+
   render() {
+    const { userList, isLoading } = this.state;
+
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
+          <h1>Get users from randomuser.me</h1>
         </header>
+        {isLoading && <div>Data is loading...</div>}
+        <ul className="user__list">
+          {userList && userList.map(({ id, name, email, picture }) => {
+            return <li key={id.value} className="user__list-item">
+                    <img src={picture.thumbnail} className="user__img" alt={`${name.first} ${name.last} picture`}/>
+                    <strong>{name.first} {name.last}</strong><br />
+                    {email}
+                  </li>
+          })}
+
+        </ul>
       </div>
     );
   }
